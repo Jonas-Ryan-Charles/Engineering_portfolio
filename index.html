@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Jonas Ryan Charles — Electrical &amp; Electronic Engineering</title>
+    <meta
+      name="description"
+      content="Jonas Ryan Charles — Electrical & Electronic Engineering (Honours) student at the University of Adelaide. Semiconductor device modelling, analog circuit design, and embedded systems."
+    />
+
+    <!-- Google Fonts (with system fallbacks in CSS so file:// offline still looks right) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <link rel="stylesheet" href="css/styles.css" />
+    <link rel="stylesheet" href="css/interactive.css" />
+    <link rel="stylesheet" href="css/background.css" />
+    <noscript>
+      <style>
+        [data-preloader] { display: none !important; }
+        .hero [data-enter] { opacity: 1 !important; transform: none !important; }
+        .reveal { opacity: 1 !important; transform: none !important; }
+      </style>
+    </noscript>
+  </head>
+  <body>
+    <a class="skip-link" href="#projects">Skip to content</a>
+
+    <!-- ====================================================================
+         PRELOADER — short instrument boot sequence; page mounts behind it
+         ==================================================================== -->
+    <div class="preloader" data-preloader role="status" aria-live="polite" aria-label="Loading">
+      <div class="preloader__inner">
+        <div class="preloader__brand">
+          <span class="chip__led" aria-hidden="true"></span>
+          JRC // ENGINEERING
+        </div>
+        <div class="preloader__log" aria-hidden="true"></div>
+        <div class="preloader__bar" aria-hidden="true"><span></span></div>
+      </div>
+    </div>
+
+    <!-- Scroll progress indicator (under the nav) -->
+    <div class="scroll-progress" aria-hidden="true">
+      <div class="scroll-progress__bar"></div>
+    </div>
+
+    <!-- ====================================================================
+         NAV
+         ==================================================================== -->
+    <header class="nav" id="top">
+      <div class="container nav__inner">
+        <a class="logomark" href="#top" aria-label="JRC — home">
+          <!-- Trace-motif logomark -->
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 22 22"
+            fill="none"
+            aria-hidden="true"
+          >
+            <path
+              d="M2 11h4l2-5 3 10 2-5h6"
+              stroke="currentColor"
+              stroke-width="1.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <circle cx="20" cy="6" r="1.6" fill="currentColor" />
+          </svg>
+          <span>JRC</span>
+        </a>
+
+        <nav class="nav__links" aria-label="Primary">
+          <a class="nav__link" href="#focus">Focus</a>
+          <a class="nav__link" href="#projects">Projects</a>
+          <a class="nav__link" href="#skills">Skills</a>
+          <a class="nav__link" href="#experience">Experience</a>
+          <a class="nav__link" href="#contact">Contact</a>
+        </nav>
+
+        <div class="nav__right">
+          <a
+            class="nav__social-link"
+            href="mailto:jonasryancharles@gmail.com"
+            aria-label="Email jonasryancharles@gmail.com"
+          >
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <rect x="1.5" y="3" width="13" height="10" rx="1.5" stroke="currentColor" stroke-width="1.3" />
+              <path d="M2 4l6 4.5L14 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+            </svg>
+            <span class="nav__social-text">Email</span>
+          </a>
+
+          <a
+            class="nav__social-link"
+            href="https://www.linkedin.com/in/jonas-ryan-charles-ba9a23236/"
+            data-social="linkedin"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open Jonas Ryan Charles on LinkedIn"
+          >
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <path d="M13.6 13.6h-2.37V9.9c0-.88-.02-2.02-1.23-2.02-1.23 0-1.42.96-1.42 1.96v3.76H6.2V6h2.28v1.04h.03c.32-.6 1.1-1.23 2.26-1.23 2.42 0 2.86 1.59 2.86 3.66v4.13zM3.56 4.96a1.38 1.38 0 110-2.76 1.38 1.38 0 010 2.76zM4.75 13.6H2.37V6h2.38v7.6zM14.78 0H1.22C.55 0 0 .54 0 1.2v13.6c0 .67.55 1.2 1.22 1.2h13.56c.67 0 1.22-.53 1.22-1.2V1.2C16 .54 15.45 0 14.78 0z" />
+            </svg>
+            <span class="nav__social-text">LinkedIn</span>
+          </a>
+
+          <a
+            class="nav__social-link"
+            href="https://github.com/Jonas-Ryan-Charles"
+            data-social="github"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Open Jonas Ryan Charles on GitHub"
+          >
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
+              <path fill-rule="evenodd" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 012-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z" />
+            </svg>
+            <span class="nav__social-text">GitHub</span>
+          </a>
+
+          <a
+            class="nav__social-link nav__social-link--cta"
+            href="assets/Jonas_Ryan_Charles_Resume.pdf"
+            target="_blank"
+            rel="noopener"
+            aria-label="Open resume (PDF)"
+          >
+            <svg width="15" height="15" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <path d="M4 1.5h5l3 3v10H4z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" />
+              <path d="M9 1.5v3h3M6 8h4M6 10.5h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+            </svg>
+            <span class="nav__social-text">Resume</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <main id="main">
+      <!-- ==================================================================
+           HERO
+           ================================================================== -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="container">
+          <div class="hero__grid">
+            <div class="hero__inner">
+              <p class="hero__kicker" data-enter>Electrical &amp; Electronic Engineering</p>
+              <h1
+                class="hero__title"
+                id="hero-title"
+                data-enter
+                aria-label="Jonas Ryan Charles — Engineer and Entrepreneur"
+              >
+                <!-- Animated identity cycle (js/typewriter.js). The markup
+                     below is the static no-JS / reduced-motion fallback. -->
+                <span class="ident" data-typewriter aria-hidden="true">
+                  <span class="ident__line">JONAS <span class="accent">RYAN</span></span>
+                  <span class="ident__line"><span class="ident__seg--dim">CHARLES</span></span>
+                </span>
+              </h1>
+              <p class="hero__subline" data-enter>
+                Honours student at the University of Adelaide working across
+                semiconductor device modelling, analog circuit design, and
+                embedded systems.
+              </p>
+
+              <div class="hero__cta" data-enter>
+                <a class="btn btn--solid" href="#projects">
+                  View projects
+                  <span class="btn__arrow" aria-hidden="true">→</span>
+                </a>
+                <a class="btn btn--outline" href="#contact">Get in touch</a>
+              </div>
+
+              <p class="hero__stats" data-enter>
+                <span>TCAD</span><span class="dot">·</span>
+                <span>Virtuoso</span><span class="dot">·</span>
+                <span>KiCad</span><span class="dot">·</span>
+                <span>8051</span>
+              </p>
+
+              <!-- Engineering metrics — values mirror JRC_DATA.profile.metrics -->
+              <ul class="metrics" data-enter aria-label="Engineering metrics">
+                <li class="metric">
+                  <span class="metric__icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <path d="M1.5 5.5L8 2.5l6.5 3L8 8.5 1.5 5.5z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+                      <path d="M4 7v3.5c0 .8 1.8 1.5 4 1.5s4-.7 4-1.5V7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                  <span class="metric__value">6.0<span class="metric__value-sub"> / 7.0</span></span>
+                  <span class="metric__label">Engineering GPA</span>
+                  <span class="metric__sub" aria-hidden="true"></span>
+                </li>
+
+                <li class="metric">
+                  <span class="metric__icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+                      <path d="M2.5 6.5h3M10.5 6.5h3M2.5 9.5h3M10.5 9.5h3" stroke="currentColor" stroke-width="1.2"/>
+                      <circle cx="8" cy="8" r="1.6" stroke="currentColor" stroke-width="1.2"/>
+                    </svg>
+                  </span>
+                  <span class="metric__value">4</span>
+                  <span class="metric__label">Technical Projects</span>
+                  <span class="metric__sub">Semiconductor · Embedded · RF</span>
+                </li>
+
+                <li class="metric">
+                  <span class="metric__icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <rect x="4.5" y="4.5" width="7" height="7" rx="1" stroke="currentColor" stroke-width="1.2"/>
+                      <path d="M6.5 4.5V2M9.5 4.5V2M6.5 14v-2.5M9.5 14v-2.5M4.5 6.5H2M4.5 9.5H2M14 6.5h-2.5M14 9.5h-2.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                    </svg>
+                  </span>
+                  <span class="metric__value">2</span>
+                  <span class="metric__label">TCAD Platforms</span>
+                  <span class="metric__sub">Synopsys · Silvaco</span>
+                </li>
+
+                <li class="metric">
+                  <span class="metric__icon" aria-hidden="true">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                      <rect x="2" y="3" width="12" height="8" rx="1.2" stroke="currentColor" stroke-width="1.2"/>
+                      <path d="M8 11v3M5.5 14h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+                      <path d="M5 8l2-2 1.6 1.6L11 5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                  <span class="metric__value">1</span>
+                  <span class="metric__label">Conference Presentation</span>
+                  <span class="metric__sub">Engineering Research</span>
+                </li>
+              </ul>
+
+              <div class="hero__statement" data-enter>
+                <p class="hero__statement-text">
+                  Simulation builds <em>intuition</em>. Hardware proves <em>it</em>.
+                </p>
+                <a class="btn btn--outline hero__statement-cta" href="#projects">
+                  Explore My Work
+                </a>
+              </div>
+            </div>
+
+            <!-- Right column: interactive humanoid Nexbot (Spline) + terminal.
+                 Spline canvas is injected by js/robot.js into .robot__stage;
+                 the silhouette below is the reserved-space poster + fallback. -->
+            <div class="hero__viz" data-enter>
+              <div class="robot" data-robot>
+                <div class="robot__stage">
+                  <!-- Humanoid silhouette: reserves dimensions + fallback -->
+                  <svg
+                    class="robot__silhouette"
+                    viewBox="0 0 300 380"
+                    fill="none"
+                    role="img"
+                    aria-label="Interactive engineering robot"
+                  >
+                    <defs>
+                      <linearGradient id="rg" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0" stop-color="var(--bg-card)" />
+                        <stop offset="1" stop-color="var(--bg)" />
+                      </linearGradient>
+                    </defs>
+                    <g stroke="var(--signal-dim)" stroke-width="1.5" fill="url(#rg)">
+                      <!-- head -->
+                      <rect x="112" y="26" width="76" height="86" rx="30" />
+                      <!-- visor -->
+                      <rect x="126" y="52" width="48" height="20" rx="10"
+                            fill="var(--bg)" stroke="var(--signal)" />
+                      <!-- neck -->
+                      <rect x="138" y="112" width="24" height="16" rx="4" />
+                      <!-- shoulders / torso -->
+                      <path d="M96 150 q54 -26 108 0 l10 96 q-64 24 -128 0 z" />
+                      <!-- arms -->
+                      <path d="M96 156 q-34 10 -40 74 l20 8 q10 -50 34 -66 z" />
+                      <path d="M204 156 q34 10 40 74 l-20 8 q-10 -50 -34 -66 z" />
+                      <!-- core light -->
+                      <circle cx="150" cy="196" r="10" fill="var(--bg)"
+                              stroke="var(--signal)" />
+                    </g>
+                    <circle class="robot__core" cx="150" cy="196" r="4"
+                            fill="var(--signal)" />
+                  </svg>
+
+                  <!-- Themed loading state (shown only while Spline loads) -->
+                  <div class="robot__loader" aria-hidden="true">
+                    <span class="robot__loader-label">LOADING_3D<span class="cur"></span></span>
+                  </div>
+
+                  <!-- Accessible identity hotspot over the robot -->
+                  <button
+                    type="button"
+                    class="robot__hotspot"
+                    aria-describedby="robot-tip"
+                    aria-label="System identity: Jonas Ryan Charles, electrical and electronic engineer"
+                  ></button>
+                </div>
+
+                <!-- Static identity label — never hover-only (touch-safe) -->
+                <p class="robot__caption">
+                  <span class="accent">◈</span> JRC_ENGINEERING_NODE
+                </p>
+
+                <!-- Floating tooltip -->
+                <div class="robot__tooltip" id="robot-tip" role="tooltip">
+                  <span class="k">SYSTEM IDENT //</span> JONAS RYAN CHARLES<br />
+                  <span class="m">ELECTRICAL &amp; ELECTRONIC ENGINEER</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Interactive HDL profile terminal. Lives directly under .hero (not
+             inside the robot's flex column) so it can be anchored in the hero's
+             lower-right and stay fully visible on the landing screen. -->
+        <div class="terminal-wrap" data-enter>
+          <div class="terminal" data-terminal>
+            <div class="terminal__bar">
+              <span class="terminal__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+              <span class="terminal__title">jonas@fpga — HDL PROFILE</span>
+              <span class="terminal__status" data-terminal-status aria-hidden="true"></span>
+            </div>
+            <div
+              class="terminal__output"
+              role="log"
+              aria-live="polite"
+              aria-label="Terminal output"
+            ></div>
+            <form class="terminal__form" autocomplete="off">
+              <label class="sr-only" for="term-input">Terminal command</label>
+              <span class="terminal__prompt" aria-hidden="true">jonas@fpga:~$</span>
+              <input
+                class="terminal__input"
+                id="term-input"
+                name="command"
+                type="text"
+                spellcheck="false"
+                autocapitalize="none"
+                autocomplete="off"
+                aria-label="Terminal command"
+              />
+            </form>
+          </div>
+          <div class="terminal__hints" aria-label="Command shortcuts">
+            <button class="terminal__hint" type="button" data-cmd="help">help</button>
+            <button class="terminal__hint" type="button" data-cmd="whoami">whoami</button>
+            <button class="terminal__hint" type="button" data-cmd="experience">experience</button>
+            <button class="terminal__hint" type="button" data-cmd="projects">projects</button>
+            <button class="terminal__hint" type="button" data-cmd="skills">skills</button>
+            <button class="terminal__hint" type="button" data-cmd="contact">contact</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Circuit-trace divider -->
+      <div class="container">
+        <div class="divider reveal" data-divider aria-hidden="true">
+          <svg viewBox="0 0 1200 48" preserveAspectRatio="none">
+            <path
+              class="trace-path"
+              d="M0 24 H180 L212 8 H520 L548 40 H820 L852 24 H1200"
+            />
+            <circle class="via" cx="212" cy="8" r="3.5" />
+            <circle class="via" cx="548" cy="40" r="3.5" />
+            <circle class="via" cx="852" cy="24" r="3.5" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           01 — FOCUS AREAS (What I Do)
+           ================================================================== -->
+      <section class="section" id="focus" aria-labelledby="focus-title">
+        <div class="container">
+          <div class="section__head reveal">
+            <span class="section__label">// 01 — Engineering Focus</span>
+            <h2 class="section__title" id="focus-title">
+              Where I work — device, signal, and system.
+            </h2>
+            <p class="section__intro">
+              Four domains I build depth in, from silicon behaviour up to
+              working hardware.
+            </p>
+          </div>
+
+          <div class="focus-list">
+            <article class="focus-item reveal" style="--i: 0">
+              <span class="focus-item__id">F-01</span>
+              <div>
+                <h3 class="focus-item__title">Semiconductor Device Modelling</h3>
+                <p class="focus-item__blurb">
+                  TCAD device simulation of FinFET and GaNFET architectures —
+                  sweeping gate scaling, analysing defect detection, and mapping
+                  the sensitivity-versus-noise trade-off for biosensing.
+                </p>
+                <div class="tag-row focus-item__tools">
+                  <span class="tag tag--signal">Synopsys TCAD</span>
+                  <span class="tag">Silvaco TCAD</span>
+                  <span class="tag">FinFET</span>
+                  <span class="tag">GaNFET</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="focus-item reveal" style="--i: 1">
+              <span class="focus-item__id">F-02</span>
+              <div>
+                <h3 class="focus-item__title">Analog &amp; Mixed-Signal Design</h3>
+                <p class="focus-item__blurb">
+                  Analog circuit design and simulation across schematic capture
+                  and SPICE — building intuition for signal integrity, biasing,
+                  and the behaviour of real devices.
+                </p>
+                <div class="tag-row focus-item__tools">
+                  <span class="tag tag--signal">Cadence Virtuoso</span>
+                  <span class="tag">LTspice</span>
+                  <span class="tag">MATLAB</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="focus-item reveal" style="--i: 2">
+              <span class="focus-item__id">F-03</span>
+              <div>
+                <h3 class="focus-item__title">Embedded Systems</h3>
+                <p class="focus-item__blurb">
+                  Firmware and protocol work on resource-constrained
+                  microcontrollers — including a dual-layer XOR + Morse
+                  secure-messaging scheme running end to end on an 8-bit AT89S52.
+                </p>
+                <div class="tag-row focus-item__tools">
+                  <span class="tag tag--signal">AT89S52</span>
+                  <span class="tag">8051</span>
+                  <span class="tag">Assembly</span>
+                  <span class="tag">Embedded C</span>
+                </div>
+              </div>
+            </article>
+
+            <article class="focus-item reveal" style="--i: 3">
+              <span class="focus-item__id">F-04</span>
+              <div>
+                <h3 class="focus-item__title">PCB &amp; Hardware Prototyping</h3>
+                <p class="focus-item__blurb">
+                  Schematic-to-board PCB design and RF prototyping — including
+                  antenna design, fabrication, and closing the loop between
+                  simulated and measured response.
+                </p>
+                <div class="tag-row focus-item__tools">
+                  <span class="tag tag--signal">KiCad</span>
+                  <span class="tag">Antenna Design</span>
+                  <span class="tag">RF</span>
+                  <span class="tag">Measurement</span>
+                </div>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Circuit-trace divider -->
+      <div class="container">
+        <div class="divider reveal" data-divider aria-hidden="true">
+          <svg viewBox="0 0 1200 48" preserveAspectRatio="none">
+            <path
+              class="trace-path"
+              d="M1200 24 H1020 L988 40 H700 L672 8 H360 L328 24 H0"
+            />
+            <circle class="via" cx="988" cy="40" r="3.5" />
+            <circle class="via" cx="672" cy="8" r="3.5" />
+            <circle class="via" cx="328" cy="24" r="3.5" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           02 — PROJECTS
+           ================================================================== -->
+      <section class="section" id="projects" aria-labelledby="projects-title">
+        <div class="container">
+          <div class="section__head reveal">
+            <span class="section__label">// 02 — Research &amp; Projects</span>
+            <h2 class="section__title" id="projects-title">
+              Work at the boundary of device, circuit, and system.
+            </h2>
+          </div>
+
+          <div class="grid grid--2">
+            <article class="card reveal" style="--i: 0">
+              <span class="card__pin card__pin--tl"></span>
+              <span class="card__pin card__pin--tr"></span>
+              <span class="card__pin card__pin--bl"></span>
+              <span class="card__pin card__pin--br"></span>
+              <span class="card__index">P-01</span>
+              <h3 class="card__title">FinFET &amp; GaNFET Biosensor Research</h3>
+              <p class="card__body">
+                Nanoscale biosensors trade sensitivity against noise — device
+                geometry decides which wins. Ran TCAD simulation (Synopsys +
+                Silvaco) of FinFET and GaNFET architectures for biosensing and
+                high-frequency sensing, sweeping gate scaling and analysing
+                defect-detection behaviour. Quantified the sensitivity-vs-noise
+                trade-off across gate lengths, producing device-sizing guidance
+                for biosensing performance. Presented at the International
+                Conference on Multifunctional Materials.
+              </p>
+              <div class="tag-row" style="margin-top: var(--space-4)">
+                <span class="tag tag--signal">Synopsys TCAD</span>
+                <span class="tag">Silvaco TCAD</span>
+                <span class="tag">FinFET</span>
+                <span class="tag">GaNFET</span>
+                <span class="tag">Device Modelling</span>
+              </div>
+              <div class="card__motif" aria-hidden="true">
+                <svg viewBox="0 0 160 40" width="100%" height="40" fill="none">
+                  <rect x="8" y="24" width="144" height="8" rx="1" stroke="currentColor" stroke-width="1.4" />
+                  <path d="M24 24V12h16v12M64 24V8h16v16M104 24V14h16v10" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+                </svg>
+              </div>
+            </article>
+
+            <article class="card reveal" style="--i: 1">
+              <span class="card__pin card__pin--tl"></span>
+              <span class="card__pin card__pin--tr"></span>
+              <span class="card__pin card__pin--bl"></span>
+              <span class="card__pin card__pin--br"></span>
+              <span class="card__index">P-02</span>
+              <h3 class="card__title">Secure Messaging on an 8-bit Micro</h3>
+              <p class="card__body">
+                Standard encryption is too heavy for resource-constrained 8-bit
+                hardware. Designed a lightweight dual-layer scheme — dynamic
+                XOR keying over Morse encoding — sized to the AT89S52's memory
+                and clock budget, resulting in reliable, low-overhead secure
+                messaging running on 8-bit hardware end to end.
+              </p>
+              <div class="tag-row" style="margin-top: var(--space-4)">
+                <span class="tag tag--signal">AT89S52</span>
+                <span class="tag">8051</span>
+                <span class="tag">Assembly</span>
+                <span class="tag">Embedded C</span>
+                <span class="tag">Encryption</span>
+              </div>
+              <div class="card__motif" aria-hidden="true">
+                <svg viewBox="0 0 160 40" width="100%" height="40" fill="none">
+                  <path d="M4 20h12l6-14 8 28 6-20 6 12h12l6-8 6 8h94" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </div>
+            </article>
+
+            <article class="card reveal" style="--i: 2">
+              <span class="card__pin card__pin--tl"></span>
+              <span class="card__pin card__pin--tr"></span>
+              <span class="card__pin card__pin--bl"></span>
+              <span class="card__pin card__pin--br"></span>
+              <span class="card__index">P-03</span>
+              <h3 class="card__title">TCAD Nanosensor Sensitivity Study</h3>
+              <p class="card__body">
+                Improving nanosensor sensitivity for biosensing applications as
+                a core team member of the IEEE Photonics Society, Chennai.
+                Contributed TCAD-based device simulations to team biosensor
+                solutions, building on research webinars in quantum computing
+                and semiconductor methodologies — simulation groundwork feeding
+                the society's biosensor solution work.
+              </p>
+              <div class="tag-row" style="margin-top: var(--space-4)">
+                <span class="tag tag--signal">TCAD</span>
+                <span class="tag">Nanosensors</span>
+                <span class="tag">Photonics</span>
+                <span class="tag">Simulation</span>
+              </div>
+              <div class="card__motif" aria-hidden="true">
+                <svg viewBox="0 0 160 40" width="100%" height="40" fill="none">
+                  <circle cx="80" cy="20" r="16" stroke="currentColor" stroke-width="1.4" />
+                  <circle cx="80" cy="20" r="3" fill="currentColor" />
+                  <path d="M80 4V0M80 40v-4M96 20h4M60 20h-4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+                </svg>
+              </div>
+            </article>
+
+            <article class="card reveal" style="--i: 3">
+              <span class="card__pin card__pin--tl"></span>
+              <span class="card__pin card__pin--tr"></span>
+              <span class="card__pin card__pin--bl"></span>
+              <span class="card__pin card__pin--br"></span>
+              <span class="card__index">P-04</span>
+              <h3 class="card__title">Antenna Design &amp; Fabrication</h3>
+              <p class="card__body">
+                Getting a fabricated antenna to match its simulated behaviour
+                is the hard part. Designed, fabricated, and tested antennas as
+                part of RF/electronics training, iterating between simulated
+                and measured response — hands-on RF capability from EM
+                simulation through physical fabrication and measurement.
+              </p>
+              <div class="tag-row" style="margin-top: var(--space-4)">
+                <span class="tag tag--signal">Antenna Design</span>
+                <span class="tag">RF</span>
+                <span class="tag">Fabrication</span>
+                <span class="tag">Measurement</span>
+              </div>
+              <div class="card__motif" aria-hidden="true">
+                <svg viewBox="0 0 160 40" width="100%" height="40" fill="none">
+                  <path d="M80 36V10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+                  <path d="M80 10c-14 0-14-10 0-10s14 10 0 10z" stroke="currentColor" stroke-width="1.4" />
+                  <path d="M60 36h40" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+                  <path d="M52 22c8-6 16-6 28 0M48 28c12-9 24-9 36 0" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+                </svg>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <!-- Circuit-trace divider -->
+      <div class="container">
+        <div class="divider reveal" data-divider aria-hidden="true">
+          <svg viewBox="0 0 1200 48" preserveAspectRatio="none">
+            <path
+              class="trace-path"
+              d="M1200 24 H1000 L968 40 H700 L672 8 H360 L328 24 H0"
+            />
+            <circle class="via" cx="968" cy="40" r="3.5" />
+            <circle class="via" cx="672" cy="8" r="3.5" />
+            <circle class="via" cx="328" cy="24" r="3.5" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           02 — CAPABILITIES
+           ================================================================== -->
+      <section
+        class="section section--tight"
+        id="capabilities"
+        aria-labelledby="capabilities-title"
+      >
+        <div class="container">
+          <div class="section__head reveal">
+            <span class="section__label">// 03 — Capabilities</span>
+            <h2 class="section__title" id="capabilities-title">
+              A working span across the EE toolchain.
+            </h2>
+          </div>
+
+          <!--
+            CONTENT: CAPABILITIES — horizontal strip of 4–5 items.
+            Items (from brief): PCB Design — KiCad; Analog — Virtuoso/LTspice;
+            Automation — PLC/Siemens; Costing — Revit; HDL — SystemVerilog/VHDL.
+
+            Per-item markup pattern (copy exactly):
+
+            <div class="cap">
+              <span class="cap__index">C-01</span>
+              <p class="cap__name">PCB Design</p>
+              <p class="cap__meta">KiCad</p>
+            </div>
+          -->
+          <div class="cap-strip reveal">
+            <div class="cap">
+              <span class="cap__index">C-01</span>
+              <p class="cap__name">PCB Design</p>
+              <p class="cap__meta">KiCad</p>
+            </div>
+            <div class="cap">
+              <span class="cap__index">C-02</span>
+              <p class="cap__name">Analog Design</p>
+              <p class="cap__meta">Cadence Virtuoso · LTspice</p>
+            </div>
+            <div class="cap">
+              <span class="cap__index">C-03</span>
+              <p class="cap__name">HDL &amp; Digital</p>
+              <p class="cap__meta">SystemVerilog · VHDL</p>
+            </div>
+            <div class="cap">
+              <span class="cap__index">C-04</span>
+              <p class="cap__name">Automation</p>
+              <p class="cap__meta">PLC · Siemens</p>
+            </div>
+            <div class="cap">
+              <span class="cap__index">C-05</span>
+              <p class="cap__name">Electrical Costing</p>
+              <p class="cap__meta">Revit</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================================================================
+           03 — SKILLS / INSTRUMENTATION
+           ================================================================== -->
+      <section class="section" id="skills" aria-labelledby="skills-title">
+        <div class="container">
+          <div class="section__head reveal">
+            <span class="section__label">// 04 — Instrumentation</span>
+            <h2 class="section__title" id="skills-title">
+              Instrument panel — readouts by domain.
+            </h2>
+          </div>
+
+          <!--
+            CONTENT: SKILLS — 4 instrument-style panels.
+            Groups (from brief): Programming & HDL / EDA & Simulation /
+            Electronics / Tools.
+
+            Per-panel markup pattern (copy exactly). Skills are .tag chips;
+            use .tag--signal to highlight a lead/standout skill:
+
+            <div class="panel reveal" style="--i: 0">
+              <div class="panel__head">
+                <span class="panel__title">Programming &amp; HDL</span>
+                <span class="panel__led" aria-hidden="true"></span>
+              </div>
+              <div class="panel__list">
+                <span class="tag tag--signal">SystemVerilog</span>
+                <span class="tag">VHDL</span>
+                <span class="tag">C</span>
+                <span class="tag">Python</span>
+              </div>
+            </div>
+
+            Increment style="--i: N" per panel (0,1,2,3).
+          -->
+          <div class="grid grid--2">
+            <div class="panel reveal" style="--i: 0">
+              <div class="panel__head">
+                <span class="panel__title">Programming &amp; HDL</span>
+                <span class="panel__led" aria-hidden="true"></span>
+              </div>
+              <div class="panel__list">
+                <span class="tag tag--signal">SystemVerilog</span>
+                <span class="tag">VHDL</span>
+                <span class="tag">Python</span>
+                <span class="tag">Java</span>
+                <span class="tag">Assembly</span>
+              </div>
+            </div>
+
+            <div class="panel reveal" style="--i: 1">
+              <div class="panel__head">
+                <span class="panel__title">EDA &amp; Simulation</span>
+                <span class="panel__led" aria-hidden="true"></span>
+              </div>
+              <div class="panel__list">
+                <span class="tag tag--signal">Cadence Virtuoso</span>
+                <span class="tag">Synopsys TCAD</span>
+                <span class="tag">Silvaco TCAD</span>
+                <span class="tag">LTspice</span>
+                <span class="tag">MATLAB</span>
+                <span class="tag">KiCad</span>
+              </div>
+            </div>
+
+            <div class="panel reveal" style="--i: 2">
+              <div class="panel__head">
+                <span class="panel__title">Electronics</span>
+                <span class="panel__led" aria-hidden="true"></span>
+              </div>
+              <div class="panel__list">
+                <span class="tag tag--signal">Analog Circuit Design</span>
+                <span class="tag">PCB Design</span>
+                <span class="tag">Semiconductor Device Modelling</span>
+                <span class="tag">Microcontrollers</span>
+                <span class="tag">Antenna Design &amp; Fabrication</span>
+              </div>
+            </div>
+
+            <div class="panel reveal" style="--i: 3">
+              <div class="panel__head">
+                <span class="panel__title">Tools &amp; Workflow</span>
+                <span class="panel__led" aria-hidden="true"></span>
+              </div>
+              <div class="panel__list">
+                <span class="tag tag--signal">Git/GitHub</span>
+                <span class="tag">Postman</span>
+                <span class="tag">Figma</span>
+                <span class="tag">VS Code</span>
+                <span class="tag">Siemens Automation</span>
+                <span class="tag">Revit</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Circuit-trace divider -->
+      <div class="container">
+        <div class="divider reveal" data-divider aria-hidden="true">
+          <svg viewBox="0 0 1200 48" preserveAspectRatio="none">
+            <path
+              class="trace-path"
+              d="M0 24 H260 L292 40 H600 L628 8 H900 L932 24 H1200"
+            />
+            <circle class="via" cx="292" cy="40" r="3.5" />
+            <circle class="via" cx="628" cy="8" r="3.5" />
+            <circle class="via" cx="932" cy="24" r="3.5" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           04 — EXPERIENCE / FIELD LOG
+           ================================================================== -->
+      <section class="section" id="experience" aria-labelledby="experience-title">
+        <div class="container">
+          <div class="section__head reveal">
+            <span class="section__label">// 05 — Field Log</span>
+            <h2 class="section__title" id="experience-title">
+              Roles, education, and things shipped.
+            </h2>
+          </div>
+
+          <!--
+            CONTENT: EXPERIENCE — vertical timeline with via-dot markers.
+            Entries (from brief), most recent first:
+              - Trident Gold — Senior Technician (Mar 2026–Present);
+                Level 1 (Aug 2025–Mar 2026)
+              - Goodman Fielder — Production Worker (Oct 2025–Present)
+              - BAND-VIT — Event Coordinator (900+ participants, 300% ROI)
+              - IEEE Photonics Society — Core Team
+              - University of Adelaide — B.Eng EEE (Hons) (Jul 2025–Dec 2027 exp.)
+              - VIT Chennai — (Aug 2023–Jul 2025, transferred)
+
+            Per-item markup pattern (copy exactly):
+
+            <li class="tl-item reveal">
+              <p class="tl-item__meta">Mar 2026 — Present</p>
+              <h3 class="tl-item__role">Senior Technician</h3>
+              <p class="tl-item__org">Trident Gold · Adelaide, SA</p>
+              <ul class="tl-item__body">
+                <li>Outcome-focused bullet one.</li>
+                <li>Outcome-focused bullet two.</li>
+              </ul>
+            </li>
+
+            (Body <ul> optional; omit for terse education entries.)
+          -->
+          <ol class="timeline">
+            <li class="tl-item reveal">
+              <p class="tl-item__meta">Mar 2026 — Present</p>
+              <h3 class="tl-item__role">Senior Roof &amp; Gutter Technician</h3>
+              <p class="tl-item__org">Trident Gold · Adelaide, SA</p>
+              <ul class="tl-item__body">
+                <li>Promoted within 8 months.</li>
+                <li>Supervises site tasks, coordinates daily work, mentors newer technicians on safe work practices (SWMS, hazard ID).</li>
+                <li>Level 1 Technician: Aug 2025 – Mar 2026.</li>
+              </ul>
+            </li>
+
+            <li class="tl-item reveal">
+              <p class="tl-item__meta">Oct 2025 — Present</p>
+              <h3 class="tl-item__role">Production Worker</h3>
+              <p class="tl-item__org">Goodman Fielder · Adelaide, SA</p>
+              <ul class="tl-item__body">
+                <li>Line 1 bakehouse operations: production flow, quality checks, food-safety compliance.</li>
+              </ul>
+            </li>
+
+            <li class="tl-item reveal">
+              <p class="tl-item__meta">Jul 2025 — Dec 2027 (expected)</p>
+              <h3 class="tl-item__role">B.Eng (Honours), Electrical &amp; Electronic Engineering</h3>
+              <p class="tl-item__org">University of Adelaide</p>
+            </li>
+
+            <li class="tl-item reveal">
+              <p class="tl-item__meta">Aug 2023 — Jul 2025</p>
+              <h3 class="tl-item__role">B.Tech, Electronics &amp; Communication Engineering</h3>
+              <p class="tl-item__org">VIT Chennai · transferred to Adelaide</p>
+            </li>
+
+            <li class="tl-item reveal">
+              <p class="tl-item__meta">Chennai</p>
+              <h3 class="tl-item__role">Event Coordinator</h3>
+              <p class="tl-item__org">BAND-VIT</p>
+              <ul class="tl-item__body">
+                <li>900+ participant gaming event.</li>
+                <li>300% ROI.</li>
+              </ul>
+            </li>
+
+            <li class="tl-item reveal">
+              <p class="tl-item__meta">Chennai</p>
+              <h3 class="tl-item__role">Core Team Member</h3>
+              <p class="tl-item__org">IEEE Photonics Society</p>
+              <ul class="tl-item__body">
+                <li>TCAD biosensor contributions.</li>
+                <li>Semiconductor research webinars.</li>
+              </ul>
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- Circuit-trace divider -->
+      <div class="container">
+        <div class="divider reveal" data-divider aria-hidden="true">
+          <svg viewBox="0 0 1200 48" preserveAspectRatio="none">
+            <path
+              class="trace-path"
+              d="M1200 24 H940 L908 8 H620 L592 40 H300 L268 24 H0"
+            />
+            <circle class="via" cx="908" cy="8" r="3.5" />
+            <circle class="via" cx="592" cy="40" r="3.5" />
+            <circle class="via" cx="268" cy="24" r="3.5" />
+          </svg>
+        </div>
+      </div>
+
+      <!-- ==================================================================
+           06 — CONTACT / SIGNAL IN
+           ================================================================== -->
+      <section class="section" id="contact" aria-labelledby="contact-title">
+        <div class="container">
+          <div class="section__head reveal">
+            <span class="section__label">// 06 — Signal In</span>
+          </div>
+
+          <div class="reveal">
+            <p class="contact__title" id="contact-title">
+              Ready to <span class="accent">receive.</span>
+            </p>
+            <p class="hero__subline">
+              Open to electrical engineering internships and student engineer
+              roles in Adelaide and beyond.
+            </p>
+            <div class="btn-row" style="margin-top: var(--space-6)">
+              <a class="btn btn--solid" href="mailto:jonasryancharles@gmail.com">
+                Email me <span class="btn__arrow" aria-hidden="true">→</span>
+              </a>
+            </div>
+            <div class="contact__grid">
+              <a class="contact__row" href="mailto:jonasryancharles@gmail.com">
+                <span class="contact__label">Email</span>
+                <span class="contact__value">jonasryancharles@gmail.com</span>
+              </a>
+              <a class="contact__row" href="tel:+61481328076">
+                <span class="contact__label">Phone</span>
+                <span class="contact__value">+61 481 328 076</span>
+              </a>
+              <!-- LinkedIn href="#" — PLACEHOLDER, user to fill real URL -->
+              <a class="contact__row" href="#" data-placeholder="linkedin">
+                <span class="contact__label">LinkedIn</span>
+                <span class="contact__value">linkedin.com/in/…</span>
+              </a>
+              <div class="contact__row">
+                <span class="contact__label">Location</span>
+                <span class="contact__value">Adelaide, SA</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- ====================================================================
+         FOOTER
+         ==================================================================== -->
+    <footer class="footer">
+      <div class="container">
+        <div
+          class="divider"
+          style="height: 20px; margin-bottom: var(--space-4)"
+          aria-hidden="true"
+        >
+          <svg viewBox="0 0 1200 20" preserveAspectRatio="none">
+            <path
+              class="trace-path"
+              style="stroke-dashoffset: 0; opacity: 0.5"
+              d="M0 10 H1200"
+            />
+          </svg>
+        </div>
+        <div class="footer__inner">
+          <span>© 2026 Jonas Ryan Charles · Adelaide, SA</span>
+          <span class="footer__signoff">designed as a signal, not noise</span>
+        </div>
+      </div>
+    </footer>
+
+    <!-- Return-to-top -->
+    <button type="button" class="to-top" data-to-top aria-label="Return to top">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M8 13V3M8 3l-4 4M8 3l4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+
+    <!-- Config + data first, then feature modules, then core behaviour -->
+    <script src="js/config.js"></script>
+    <script src="js/data.js"></script>
+    <!-- Decorative pointer-reactive background (independent of all other UI) -->
+    <script src="js/background.js"></script>
+    <script src="js/robot.js"></script>
+    <script src="js/console.js"></script>
+    <script src="js/typewriter.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

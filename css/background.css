@@ -1,0 +1,21 @@
+/* ============================================================================
+   Interactive electrical background — presentation only.
+   A single transparent, decorative canvas that sits BEHIND all page content
+   (z-index:-1 keeps it above the body's engineering grid but under every
+   block/positioned element, so no existing UI is covered or restyled).
+   All drawing/idle logic lives in js/background.js.
+   ============================================================================ */
+.fx-bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1;
+  pointer-events: none; /* never blocks clicks, hover, or focus */
+  display: block;
+  /* No background of its own — the page grid must stay visible through it. */
+  background: transparent;
+  /* Isolate paint/layout without size containment (the fixed inset supplies
+     the box; size containment would risk collapsing the canvas). */
+  contain: layout paint style;
+}
