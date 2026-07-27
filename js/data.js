@@ -78,20 +78,19 @@
     projects: [
       {
         id: "P-01",
-        title: "FinFET & GaNFET Biosensor Research",
-        context: "Presented — Intl. Conf. on Multifunctional Materials",
+        title: "3-Band Op-Amp Audio Equalizer & PCB Layout",
+        context: "Analog design — LTspice + PCB",
         summary: [
-          "TCAD simulation (Synopsys + Silvaco) of FinFET and GaNFET device",
-          "architectures for biosensing and high-frequency sensing. Swept gate",
-          "scaling and analysed defect detection, quantifying the sensitivity-",
-          "vs-noise trade-off to guide device sizing."
+          "A three-band (bass/mid/treble) active audio equalizer from op-amp",
+          "filter stages — simulated in LTspice, then laid out as a",
+          "manufacturable PCB with low harmonic distortion."
         ],
-        tools: ["Synopsys TCAD", "Silvaco TCAD", "FinFET", "GaNFET"],
-        link: ""
+        tools: ["LTspice", "Op-Amp", "Analog", "PCB", "KiCad"],
+        link: "assets/projects/p01-equalizer-report.pdf"
       },
       {
         id: "P-02",
-        title: "Secure Messaging on an 8-bit Micro",
+        title: "Secure Messaging — Dynamic XOR & Morse Encryption",
         context: "Embedded systems — AT89S52 (8051-class)",
         summary: [
           "Lightweight dual-layer encryption combining dynamic XOR keying with",
@@ -99,29 +98,43 @@
           "Implemented and validated end to end on an AT89S52."
         ],
         tools: ["AT89S52", "8051", "Assembly", "Embedded C"],
-        link: ""
+        link: "https://www.linkedin.com/in/jonas-ryan-charles-ba9a23236/"
       },
       {
         id: "P-03",
-        title: "TCAD Nanosensor Sensitivity Study",
-        context: "IEEE Photonics Society — core team, Chennai",
+        title: "FinFET & GaNFET Biosensor Research",
+        context: "Presented — Intl. Conf. on Multifunctional Materials",
         summary: [
-          "Contributed TCAD-based device simulations toward biosensor designs",
-          "aimed at improving nanosensor sensitivity."
+          "TCAD device simulation (Synopsys + Silvaco) of FinFET and GaNFET",
+          "biosensor architectures — sweeping gate scaling and mapping the",
+          "sensitivity-versus-noise trade-off."
         ],
-        tools: ["TCAD", "Nanosensors", "Photonics", "Simulation"],
-        link: ""
+        tools: ["Synopsys TCAD", "Silvaco TCAD", "FinFET", "GaNFET"],
+        link: "https://www.linkedin.com/in/jonas-ryan-charles-ba9a23236/"
       },
       {
         id: "P-04",
-        title: "Antenna Design & Fabrication",
-        context: "RF / electronics lab practice",
+        title: "2.5 GHz Inset-Fed Microstrip Patch Antenna",
+        context: "RF — CST Studio Suite",
         summary: [
-          "Designed, fabricated, and tested antennas — iterating between",
-          "simulated and measured response across the full RF loop."
+          "Design and optimization of a 2.5 GHz inset-fed microstrip patch",
+          "antenna in CST Studio Suite — tuning inset feed and patch geometry",
+          "for impedance matching and return loss."
         ],
-        tools: ["Antenna Design", "RF", "Fabrication", "Measurement"],
-        link: ""
+        tools: ["CST Studio", "Microstrip", "Antenna", "RF"],
+        link: "assets/projects/p04-antenna-report.pdf"
+      },
+      {
+        id: "P-05",
+        title: "VoltRung Academy — Interactive PLC Simulator",
+        context: "Web app — PLC ladder-logic learning platform",
+        summary: [
+          "A browser-based PLC ladder-logic platform for students — rung",
+          "editing, a live scan simulator, an I/O chassis, and graded scenarios",
+          "teaching industrial automation from the basics up."
+        ],
+        tools: ["PLC", "Ladder Logic", "React", "Web"],
+        link: "https://plcprogramming.vercel.app/"
       }
     ],
     skills: {
@@ -152,12 +165,12 @@
        verbatim (rendered statically so the hero never depends on JS).
        Every figure is verified against this file / the resume:
          gpa      - supplied by Jonas (not present in the resume PDF)
-         projects - 4, counted from `projects` above (P-01..P-04)
+         projects - 5, counted from `projects` above (P-01..P-05)
          tcad     - 2, Synopsys TCAD + Silvaco TCAD from `skills`
-         talks    - 1, Intl. Conference on Multifunctional Materials (P-01) */
+         talks    - 1, Intl. Conference on Multifunctional Materials */
     metrics: [
       { id: "gpa", value: "6.0", suffix: "/ 7.0", label: "Engineering GPA", sub: "" },
-      { id: "projects", value: "4", suffix: "", label: "Technical Projects", sub: "Semiconductor · Embedded · RF" },
+      { id: "projects", value: "5", suffix: "", label: "Technical Projects", sub: "Analog · Semiconductor · RF · PLC" },
       { id: "tcad", value: "2", suffix: "", label: "TCAD Platforms", sub: "Synopsys · Silvaco" },
       { id: "talks", value: "1", suffix: "", label: "Conference Presentation", sub: "Engineering Research" }
     ]

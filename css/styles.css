@@ -25,9 +25,9 @@
    --------------------------------------------------------------------------- */
 :root {
   /* Palette (from brief) */
-  --bg: #0a0e14;
-  --bg-raised: #0f1520;
-  --bg-card: #111a26;
+  --bg: #000000;
+  --bg-raised: #0a0e14;
+  --bg-card: #0d141d;
   --signal: #00e5a0;
   --signal-dim: rgba(0, 229, 160, 0.35);
   --trace-amber: #ffb454;
@@ -118,7 +118,7 @@ body {
   background-image:
     radial-gradient(
       1200px 600px at 70% -10%,
-      rgba(0, 229, 160, 0.06),
+      rgba(0, 229, 160, 0.035),
       transparent 60%
     ),
     linear-gradient(var(--grid-line) 1px, transparent 1px),
@@ -875,6 +875,16 @@ ul {
 /* ---------------------------------------------------------------------------
    12. Experience — vertical timeline w/ via-dot markers
    --------------------------------------------------------------------------- */
+/* The Work Experience block sits on its own solid surface (same treatment as
+   the carded sections) so the animated page background never shows through
+   behind the timeline. */
+#experience .container {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding-block: var(--space-10);
+}
 .timeline {
   position: relative;
   margin-left: var(--space-2);
@@ -900,6 +910,44 @@ ul {
   background: var(--bg);
   border: 2px solid var(--signal);
   box-shadow: 0 0 0 3px var(--bg), 0 0 12px -2px var(--signal-glow);
+}
+/* company badge — a big square tile pinned to the entry's top-right, with the
+   text column padded so wording never runs underneath it */
+.tl-item--work {
+  padding-right: 192px;
+}
+.tl-item__logo {
+  position: absolute;
+  top: 2px;
+  right: 0;
+  width: 160px;
+  height: 160px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  padding: 22px;
+  background: var(--bg-card, #0d1420);
+  border: 1px solid var(--border);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--signal) 8%, transparent);
+}
+.tl-item__logo img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+@media (max-width: 720px) {
+  .tl-item--work {
+    padding-right: 0;
+  }
+  .tl-item__logo {
+    position: static;
+    width: 104px;
+    height: 104px;
+    padding: 16px;
+    margin-bottom: var(--space-3);
+    border-radius: 14px;
+  }
 }
 .tl-item__meta {
   font-family: var(--font-mono);

@@ -1,21 +1,28 @@
 /* ============================================================================
-   InteractiveElectricalBackground
+   MatrixElectricalBackground
 
-   Decorative pointer-reactive layer: a minimal crosshair marker, a soft local
-   brightness field, temporary circuit nodes, PCB-style right-angle traces, and
-   sparse signal pulses — drawn ONLY over genuinely empty background space, and
-   nothing at all at rest.
+   A polished, Matrix-inspired electrical-engineering ambient layer, drawn on a
+   single transparent, fixed, pointer-events:none canvas that sits BEHIND all
+   page content (.fx-bg, z-index:-1). It replaces the old pointer-reactive
+   effect and touches nothing else on the page.
 
-   Response model (two coordinate systems, deliberately different):
-     - MARKER  tracks the RAW latest pointer sample every frame → zero visible
-               lag. Never interpolated.
-     - FIELD   (node spawn origin) uses frame-rate-independent exponential
-               smoothing so traces trail elegantly without feeling laggy.
+   What it renders (all low-opacity, atmospheric — never distracting):
+     - Vertical streams of glowing green glyphs: binary + numerals + engineering
+       symbols (0 1 Ω μ Δ Σ V A) with occasional tokens (IC PLC PCB FET), a
+       bright near-white leading character and a dim, fading trail for depth.
+     - Sparse right-angle circuit traces with connection nodes and a signal
+       pulse travelling along each, revealed then faded.
+     - An extremely subtle scanline texture and a soft green glow.
 
-   Self-contained: owns its canvas, resize, pointer tracking, empty-space hit
-   testing, generation, the single rAF loop, fade timing, touch pulses,
-   reduced-motion behaviour, and cleanup. Reads/writes nothing from the hero,
-   robot, terminal, or any other component.
+   Engineering / performance notes:
+     - Canvas-based, device-pixel-ratio aware, re-sizes with the viewport.
+     - Frame-rate capped (motion stays time-based, so the cap never slows it).
+     - Density is reduced on small screens.
+     - Pauses all work while the tab is hidden; respects prefers-reduced-motion
+       (renders one quiet static frame, no loop).
+     - Cleans up its listeners and animation frame on pagehide.
+     - Draws with clearRect each frame so the page's own grid stays visible in
+       the gaps and content backgrounds keep the rain off text and cards.
 
    Classic script (matches this repo's no-build convention).
    ============================================================================ */
@@ -23,49 +30,31 @@
   "use strict";
 
   /* ---- Tunables ---------------------------------------------------------- */
-  var RADIUS = 200;          // node spawn radius (px)      — spec 140–240
-  var MAX_NODES = 12;        // active node cap             — spec 5–12
-  var MAX_NODES_RM = 4;      // reduced-motion cap
-  var SPAWN_STEP = 14;       // min pointer travel between spawns (px)
-  var GRID = 40;             // matches the body background grid
+  var FONT_DESKTOP = 15;         // glyph size (px)
+  var FONT_MOBILE = 13;
+  var COL_SPACING = 1.9;         // column pitch as a multiple of font size (low density)
+  var ACTIVE_FRACTION = 0.72;    // portion of columns actually raining at once
+  var TRAIL_MIN = 6, TRAIL_MAX = 16;      // trail length in cells (desktop)
+  var TRAIL_MIN_M = 5, TRAIL_MAX_M = 9;   // mobile
+  var SPEED_MIN = 5, SPEED_MAX = 11;      // fall speed (rows / second)
+  var HEAD_ALPHA = 0.82;         // leading-glyph opacity
+  var TRAIL_ALPHA = 0.34;        // brightest trail opacity (fades to 0 up the tail)
+  var MUTATE_CHANCE = 0.06;      // per-frame chance a column reshuffles a trail glyph
 
-  var FIELD_SPEED = 16;      // exp-smoothing rate for the field (≈0.23/frame)
-  var MARK_IN = 28, MARK_OUT = 18;   // marker alpha ease (≈100ms in / ~160ms out)
-  var BRIGHT_IN = 18, BRIGHT_OUT = 10; // brightness alpha ease (~300ms out)
+  var FPS = 30;                  // frame-rate cap
+  var FPS_MOBILE = 24;
+  var GRID = 40;                 // circuit-trace grid (matches the body grid)
 
-  /* Reticle: continuous, time-based breathing (never phase-restarted). */
-  var BASE_RADIUS = 12;
-  var RADIUS_AMPLITUDE = 5;   // ring travels 12 -> 17px
-  var PULSE_FREQUENCY = 0.95; // Hz
-  var RM_RADIUS = 14;         // static radius under reduced motion
-  var ARM_LENGTH = 24;
-  var ARM_GAP = 3;
+  var TRACE_MAX = 3;             // concurrent ambient circuit traces (desktop)
+  var TRACE_MAX_M = 1;
+  var TRACE_SPAWN_MS = 2200;     // average gap between trace spawns
+  var T_REVEAL = 420;            // trace draw-in (ms)
+  var T_HOLD = 1600;             // trace hold (ms)
+  var T_FALL = 900;              // trace fade-out (ms)
+  var PULSE_SPEED = 190;         // px / second along a trace
 
-  var N_RISE = 90;           // node fade-in   (ms) — spec 60–140
-  var N_HOLD_MIN = 180, N_HOLD_MAX = 450; // active life  — spec 180–450
-  var N_FALL = 520;          // node fade-out  (ms) — spec 350–650
-  var T_REVEAL = 130;        // trace reveal   (ms) — spec 80–180
-
-  var PULSE_CHANCE = 0.26;
-  var PULSE_SPEED = 260;     // px/second (time-based, not frame-based)
-  var BRANCH_CHANCE = 0.3;
-
-  /* Regions that must never trigger the effect. */
-  var BLOCK_SELECTOR = [
-    "a", "button", "input", "textarea", "select", "label",
-    '[role="button"]', '[role="link"]', "[tabindex]",
-    "[data-no-background-effect]", "[data-interactive]",
-    "nav", "header", "footer",
-    "h1", "h2", "h3", "h4", "p", "li", "code",
-    ".card", ".focus-item", ".panel", ".cap", ".cap-strip",
-    ".tl-item", ".timeline", ".contact__row", ".contact__grid",
-    ".terminal", ".terminal-wrap", ".terminal__hints",
-    ".robot", ".hero__inner", ".hero__stats", ".hero__cta",
-    ".tag", ".tag-row", ".chip", ".btn",
-    ".section__label", ".section__title", ".section__intro",
-    ".to-top", ".preloader", ".scroll-progress"
-  ].join(",");
-  var ALLOW_SELECTOR = "[data-background-effect-zone]";
+  var SINGLE = ["0", "1", "0", "1", "0", "1", "Ω", "μ", "Δ", "Σ", "V", "A"];
+  var MULTI = ["IC", "PLC", "PCB", "FET"];
 
   var reduceMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -74,6 +63,10 @@
     return m
       ? [parseInt(m[1], 16), parseInt(m[2], 16), parseInt(m[3], 16)]
       : [0, 229, 160];
+  }
+  function randGlyph() {
+    if (Math.random() < 0.05) return MULTI[(Math.random() * MULTI.length) | 0];
+    return SINGLE[(Math.random() * SINGLE.length) | 0];
   }
 
   function boot() {
@@ -85,22 +78,14 @@
     if (!ctx) return;
 
     var w = 0, h = 0, dpr = 1;
-    var nodes = [];
-    var rafId = null;
-    var running = false;
-    var lastT = 0;
+    var font = FONT_DESKTOP, spacing = 1, isMobile = false, fps = FPS;
+    var columns = [];
+    var traces = [];
+    var nextTraceAt = 0;
+    var rafId = null, running = false;
+    var lastT = 0, lastDraw = 0;
 
-    // Pointer state (plain mutable objects — no per-sample framework state).
-    var targetX = 0, targetY = 0;   // latest RAW sample
-    var fieldX = 0, fieldY = 0;     // smoothed field origin
-    var hasPointer = false, isTouch = false;
-    var insideViewport = false;
-    var eligible = false, wasEligible = false;
-    var lastSpawnX = 0, lastSpawnY = 0;
-    var pendingHitTest = false;
-    var lastMoveAt = 0;
-    var markerA = 0, brightA = 0;   // eased 0..1 visibility
-
+    // Palette (green from the design tokens; head is brightened toward white).
     var signalHex = "#00e5a0", amberHex = "#ffb454";
     (function readTokens() {
       var cs = getComputedStyle(document.documentElement);
@@ -109,320 +94,283 @@
     })();
     var S = hexToRgb(signalHex);
     var srgb = S[0] + "," + S[1] + "," + S[2];
+    var A = hexToRgb(amberHex);
+    var argb = A[0] + "," + A[1] + "," + A[2];
+    var headRgb = // pull the signal green ~55% toward white for a bright head
+      Math.round(S[0] + (255 - S[0]) * 0.62) + "," +
+      Math.round(S[1] + (255 - S[1]) * 0.42) + "," +
+      Math.round(S[2] + (255 - S[2]) * 0.5);
 
     function rm() { return reduceMQ.matches; }
-    function maxNodes() { return rm() ? MAX_NODES_RM : MAX_NODES; }
 
-    /* ---- Sizing --------------------------------------------------------- */
+    /* ---- Cached scanline pattern (cheap full-canvas overlay per frame) ---- */
+    var scanPattern = null;
+    function buildScanlines() {
+      var p = document.createElement("canvas");
+      p.width = 1; p.height = 3;
+      var c = p.getContext("2d");
+      c.fillStyle = "rgba(" + srgb + ",0.05)";
+      c.fillRect(0, 0, 1, 1);                 // 1 lit row in every 3 → faint lines
+      scanPattern = ctx.createPattern(p, "repeat");
+    }
+
+    /* ---- Sizing ---------------------------------------------------------- */
     function resize() {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      // Canvas's own laid-out box — NOT innerWidth (which includes the
-      // scrollbar and would offset every pixel from the real cursor).
+      isMobile = Math.min(window.innerWidth, window.innerHeight) <= 640;
+      font = isMobile ? FONT_MOBILE : FONT_DESKTOP;
+      fps = isMobile ? FPS_MOBILE : FPS;
+      spacing = Math.round(font * COL_SPACING);
+
       w = canvas.clientWidth || document.documentElement.clientWidth;
       h = canvas.clientHeight || document.documentElement.clientHeight;
       canvas.width = Math.round(w * dpr);
       canvas.height = Math.round(h * dpr);
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    }
-    resize();
-    var resizeTimer;
-    window.addEventListener("resize", function () {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(resize, 150);
-    });
+      ctx.textBaseline = "top";
 
-    /* ---- Empty-space eligibility (one DOM hit test per frame, max) ------- */
-    function isEligible(x, y) {
-      if (x < 0 || y < 0 || x > w || y > h) return false;
-      var el = document.elementFromPoint(x, y);
-      if (!el) return false;
-      if (el.closest && el.closest(ALLOW_SELECTOR)) return true;
-      if (el.closest && el.closest(BLOCK_SELECTOR)) return false;
-      return true;
+      buildScanlines();
+      buildColumns();
+
+      if (rm()) drawStatic();     // static frame is size-dependent; redraw it
     }
 
-    /* ---- Node + stable PCB route generation ------------------------------ */
-    function snap(v) { return Math.round(v / GRID) * GRID; }
-
-    function spawnNode(px, py, now) {
-      if (nodes.length >= maxNodes()) return;
-      var ang = Math.random() * Math.PI * 2;
-      var dist = 50 + Math.random() * (RADIUS - 50);
-      var nx = snap(px + Math.cos(ang) * dist);
-      var ny = snap(py + Math.sin(ang) * dist);
-      if (nx === snap(px) && ny === snap(py)) return;
-
-      // Anchor + corner are computed ONCE here and stored on the node, so the
-      // route is stable for its whole life (never regenerated per frame).
-      var ax = px, ay = py;
-      if (nodes.length && Math.random() < BRANCH_CHANCE) {
-        var prev = nodes[nodes.length - 1];
-        ax = prev.x; ay = prev.y;
+    function buildColumns() {
+      columns = [];
+      var count = Math.max(1, Math.floor(w / spacing));
+      var tMin = isMobile ? TRAIL_MIN_M : TRAIL_MIN;
+      var tMax = isMobile ? TRAIL_MAX_M : TRAIL_MAX;
+      for (var i = 0; i < count; i++) {
+        var active = Math.random() < ACTIVE_FRACTION;
+        columns.push(makeColumn(i, tMin, tMax, active));
       }
-      var horizFirst = Math.random() < 0.5;
-      var cx = horizFirst ? nx : ax;
-      var cy = horizFirst ? ay : ny;
-      var seg1 = Math.abs(cx - ax) + Math.abs(cy - ay);
-      var seg2 = Math.abs(nx - cx) + Math.abs(ny - cy);
-      var isJunction = Math.random() < 0.22;
+    }
 
-      nodes.push({
-        x: nx, y: ny, ax: ax, ay: ay, cx: cx, cy: cy,
+    function makeColumn(i, tMin, tMax, active) {
+      var len = (tMin + Math.random() * (tMax - tMin)) | 0;
+      var glyphs = [];
+      for (var g = 0; g < len; g++) glyphs.push(randGlyph());
+      return {
+        x: Math.round(i * spacing + spacing * 0.5),
+        // start staggered above the fold so streams don't fall in lockstep
+        headY: -Math.random() * (h + len * font),
+        speed: (SPEED_MIN + Math.random() * (SPEED_MAX - SPEED_MIN)) * font,
+        len: len,
+        lastRow: null,
+        glyphs: glyphs,
+        active: active,
+        // small idle gap before an inactive column re-enters
+        respawnAt: 0
+      };
+    }
+
+    /* ---- Circuit traces (ambient) --------------------------------------- */
+    function snap(v) { return Math.round(v / GRID) * GRID; }
+    function spawnTrace(now) {
+      var max = isMobile ? TRACE_MAX_M : TRACE_MAX;
+      if (traces.length >= max) return;
+      var ax = snap(GRID + Math.random() * (w - 2 * GRID));
+      var ay = snap(GRID + Math.random() * (h - 2 * GRID));
+      var reach = 3 + (Math.random() * 4 | 0);          // grid cells
+      var dir = Math.random() < 0.5 ? 1 : -1;
+      var horizFirst = Math.random() < 0.5;
+      var bx = ax + (horizFirst ? dir * reach * GRID : 0);
+      var by = ay + (horizFirst ? 0 : dir * reach * GRID);
+      var nx = bx + (horizFirst ? 0 : (Math.random() < 0.5 ? 1 : -1) * reach * GRID);
+      var ny = by + (horizFirst ? (Math.random() < 0.5 ? 1 : -1) * reach * GRID : 0);
+      nx = Math.max(GRID, Math.min(w - GRID, nx));
+      ny = Math.max(GRID, Math.min(h - GRID, ny));
+      var seg1 = Math.abs(bx - ax) + Math.abs(by - ay);
+      var seg2 = Math.abs(nx - bx) + Math.abs(ny - by);
+      traces.push({
+        ax: ax, ay: ay, bx: bx, by: by, nx: nx, ny: ny,
         seg1: seg1, seg2: seg2, total: seg1 + seg2,
-        r: isJunction ? 4 + Math.random() * 2 : 1 + Math.random() * 2,
-        born: now,
-        hold: N_HOLD_MIN + Math.random() * (N_HOLD_MAX - N_HOLD_MIN),
-        pulse: !rm() && Math.random() < PULSE_CHANCE,
-        amber: Math.random() < 0.12
+        born: now, amber: Math.random() < 0.16
       });
     }
+    function traceAlpha(t, now) {
+      var age = now - t.born;
+      if (age < T_REVEAL) return age / T_REVEAL * 0.9;
+      if (age < T_REVEAL + T_HOLD) return 0.9;
+      var k = (age - T_REVEAL - T_HOLD) / T_FALL;
+      return k >= 1 ? 0 : (1 - k) * 0.9;
+    }
+    function pointAt(t, d) {
+      if (d <= t.seg1) {
+        var k = t.seg1 ? d / t.seg1 : 0;
+        return [t.ax + (t.bx - t.ax) * k, t.ay + (t.by - t.ay) * k];
+      }
+      var k2 = t.seg2 ? (d - t.seg1) / t.seg2 : 0;
+      return [t.bx + (t.nx - t.bx) * k2, t.by + (t.ny - t.by) * k2];
+    }
+    function drawTrace(t, now) {
+      var a = traceAlpha(t, now);
+      if (a <= 0) return;
+      var col = t.amber ? amberHex : signalHex;
+      var reveal = Math.min(1, (now - t.born) / T_REVEAL);
+      var drawLen = t.total * reveal;
 
-    function lifeOf(n) { return N_RISE + n.hold + N_FALL; }
+      ctx.strokeStyle = col;
+      ctx.globalAlpha = a * 0.28;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(t.ax, t.ay);
+      if (drawLen <= t.seg1) {
+        var p = pointAt(t, drawLen);
+        ctx.lineTo(p[0], p[1]);
+      } else {
+        ctx.lineTo(t.bx, t.by);
+        var p2 = pointAt(t, drawLen);
+        ctx.lineTo(p2[0], p2[1]);
+      }
+      ctx.stroke();
 
-    function alphaOf(n, now) {
-      var age = now - n.born;
-      if (age < 0) return 0;
-      if (age < N_RISE) return age / N_RISE;          // quick fade-in
-      var fallStart = N_RISE + n.hold;
-      if (age < fallStart) return 1;                   // hold
-      var k = (age - fallStart) / N_FALL;
-      return k >= 1 ? 0 : 1 - k;                       // smooth fade-out
+      // connection nodes at the corner + endpoint (once reached)
+      ctx.fillStyle = col;
+      ctx.globalAlpha = a * 0.5;
+      ctx.beginPath(); ctx.arc(t.ax, t.ay, 1.6, 0, Math.PI * 2); ctx.fill();
+      if (reveal >= 1) {
+        ctx.beginPath(); ctx.arc(t.bx, t.by, 1.6, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(t.nx, t.ny, 2.2, 0, Math.PI * 2); ctx.fill();
+        // travelling signal pulse
+        var d = ((now - t.born) / 1000 * PULSE_SPEED) % t.total;
+        var pp = pointAt(t, d);
+        ctx.globalAlpha = a * 0.9;
+        ctx.beginPath(); ctx.arc(pp[0], pp[1], 1.7, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
     }
 
     /* ---- Drawing --------------------------------------------------------- */
-    function drawBrightness() {
-      if (brightA <= 0.003) return;
-      // Soft local "inspection lamp" — no hard edge, local only.
-      var r = w < 700 ? 140 : 220;
-      var g = ctx.createRadialGradient(targetX, targetY, 0, targetX, targetY, r);
-      g.addColorStop(0, "rgba(" + srgb + "," + (0.13 * brightA).toFixed(4) + ")");
-      g.addColorStop(0.5, "rgba(" + srgb + "," + (0.05 * brightA).toFixed(4) + ")");
+    function drawGlow() {
+      // soft, low, top-biased green glow for atmosphere
+      var g = ctx.createRadialGradient(w * 0.7, -h * 0.1, 0, w * 0.7, -h * 0.1, Math.max(w, h) * 0.9);
+      g.addColorStop(0, "rgba(" + srgb + ",0.05)");
+      g.addColorStop(0.6, "rgba(" + srgb + ",0.012)");
       g.addColorStop(1, "rgba(" + srgb + ",0)");
       ctx.fillStyle = g;
-      ctx.beginPath();
-      ctx.arc(targetX, targetY, r, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.fillRect(0, 0, w, h);
     }
 
-    function drawNodeRoute(n, a, now) {
-      // Progressive reveal along the stored route (no per-frame regeneration).
-      var reveal = Math.min(1, (now - n.born) / T_REVEAL);
-      var drawLen = n.total * reveal;
-      var col = n.amber ? amberHex : signalHex;
+    function drawRain(now, dt) {
+      ctx.font = font + "px " + "'JetBrains Mono', ui-monospace, monospace";
+      var tMin = isMobile ? TRAIL_MIN_M : TRAIL_MIN;
+      var tMax = isMobile ? TRAIL_MAX_M : TRAIL_MAX;
 
-      ctx.strokeStyle = col;
-      ctx.globalAlpha = a * 0.32;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(n.ax, n.ay);
-      if (drawLen <= n.seg1) {
-        var k = n.seg1 ? drawLen / n.seg1 : 0;
-        ctx.lineTo(n.ax + (n.cx - n.ax) * k, n.ay + (n.cy - n.ay) * k);
-      } else {
-        ctx.lineTo(n.cx, n.cy);
-        var k2 = n.seg2 ? (drawLen - n.seg1) / n.seg2 : 0;
-        ctx.lineTo(n.cx + (n.x - n.cx) * k2, n.cy + (n.y - n.cy) * k2);
-      }
-      ctx.stroke();
+      for (var c = 0; c < columns.length; c++) {
+        var col = columns[c];
+        if (!col.active) {
+          if (now >= col.respawnAt) {
+            var fresh = makeColumn(c, tMin, tMax, true);
+            fresh.headY = -fresh.len * font;   // re-enter from the top
+            columns[c] = fresh;
+          }
+          continue;
+        }
 
-      if (reveal >= 1) {           // junction dot once the corner is reached
-        ctx.globalAlpha = a * 0.5;
-        ctx.fillStyle = col;
-        ctx.beginPath();
-        ctx.arc(n.cx, n.cy, 1.2, 0, Math.PI * 2);
-        ctx.fill();
+        col.headY += col.speed * dt;
+        var row = Math.floor(col.headY / font);
+        if (row !== col.lastRow) {              // advanced to a new cell
+          col.lastRow = row;
+          col.glyphs.unshift(randGlyph());
+          if (col.glyphs.length > col.len) col.glyphs.pop();
+        }
+        if (Math.random() < MUTATE_CHANCE && col.glyphs.length) {
+          col.glyphs[(Math.random() * col.glyphs.length) | 0] = randGlyph();
+        }
+
+        // draw head → tail (tail is above the head as it falls)
+        for (var i = 0; i < col.glyphs.length; i++) {
+          var y = col.headY - i * font;
+          if (y < -font || y > h) continue;
+          if (i === 0) {
+            ctx.fillStyle = "rgba(" + headRgb + "," + HEAD_ALPHA.toFixed(3) + ")";
+          } else {
+            var a = TRAIL_ALPHA * (1 - i / col.glyphs.length);
+            if (a <= 0.01) continue;
+            ctx.fillStyle = "rgba(" + srgb + "," + a.toFixed(3) + ")";
+          }
+          ctx.fillText(col.glyphs[i], col.x, Math.round(y));
+        }
+
+        // recycle once the whole trail has fallen past the bottom
+        if (col.headY - col.len * font > h) {
+          if (Math.random() < 0.22) {          // occasionally rest, then re-enter
+            col.active = false;
+            col.respawnAt = now + 400 + Math.random() * 2600;
+          } else {
+            var nc = makeColumn(c, tMin, tMax, true);
+            nc.headY = -nc.len * font;
+            columns[c] = nc;
+          }
+        }
       }
-      return reveal;
     }
 
-    function drawPulse(n, a, now) {
-      if (!n.total) return;
-      // Time-based (px/sec) so speed is frame-rate independent.
-      var d = ((now - n.born) / 1000 * PULSE_SPEED) % n.total;
-      var px, py;
-      if (d <= n.seg1) {
-        var k = n.seg1 ? d / n.seg1 : 0;
-        px = n.ax + (n.cx - n.ax) * k;
-        py = n.ay + (n.cy - n.ay) * k;
-      } else {
-        var k2 = n.seg2 ? (d - n.seg1) / n.seg2 : 0;
-        px = n.cx + (n.x - n.cx) * k2;
-        py = n.cy + (n.y - n.cy) * k2;
-      }
-      ctx.globalAlpha = a * 0.9;
-      ctx.fillStyle = n.amber ? amberHex : signalHex;
-      ctx.beginPath();
-      ctx.arc(px, py, 1.6, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    function drawMarker(now) {
-      if (markerA <= 0.004 || isTouch) return;
-
-      // Time-based breathing off an absolute clock, so the phase is continuous
-      // and never restarts when pointer events arrive or the loop restarts.
-      var ring, outer = 0;
-      if (rm()) {
-        ring = RM_RADIUS;                       // static under reduced motion
-      } else {
-        var t = now / 1000;
-        var pulse = 0.5 + 0.5 * Math.sin(t * Math.PI * 2 * PULSE_FREQUENCY);
-        ring = BASE_RADIUS + pulse * RADIUS_AMPLITUDE;
-        var outerPulse =
-          0.5 + 0.5 * Math.sin(t * Math.PI * 2 * PULSE_FREQUENCY - 0.8);
-        outer = 21 + outerPulse * 7;            // faint, phase-delayed
-      }
-
-      ctx.strokeStyle = signalHex;
-      ctx.lineWidth = 1;
-      ctx.shadowColor = signalHex;
-      ctx.shadowBlur = 8;
-
-      // Faint outer ring
-      if (outer) {
-        ctx.globalAlpha = markerA * 0.16;
-        ctx.beginPath();
-        ctx.arc(targetX, targetY, outer, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-
-      // Primary pulsing ring
-      ctx.globalAlpha = markerA * 0.85;
-      ctx.beginPath();
-      ctx.arc(targetX, targetY, ring, 0, Math.PI * 2);
-      ctx.stroke();
-
-      // Crosshair arms (gap around the ring)
-      var inner = ring + ARM_GAP;
-      ctx.globalAlpha = markerA * 0.65;
-      ctx.beginPath();
-      ctx.moveTo(targetX - ARM_LENGTH, targetY); ctx.lineTo(targetX - inner, targetY);
-      ctx.moveTo(targetX + inner, targetY); ctx.lineTo(targetX + ARM_LENGTH, targetY);
-      ctx.moveTo(targetX, targetY - ARM_LENGTH); ctx.lineTo(targetX, targetY - inner);
-      ctx.moveTo(targetX, targetY + inner); ctx.lineTo(targetX, targetY + ARM_LENGTH);
-      ctx.stroke();
-
-      // Centre point
-      ctx.globalAlpha = markerA;
-      ctx.fillStyle = signalHex;
-      ctx.beginPath();
-      ctx.arc(targetX, targetY, 1.5, 0, Math.PI * 2);
-      ctx.fill();
-
-      ctx.shadowBlur = 0;
+    function drawScanlines() {
+      if (!scanPattern) return;
+      ctx.fillStyle = scanPattern;
       ctx.globalAlpha = 1;
+      ctx.fillRect(0, 0, w, h);
     }
 
-    function draw(now) {
+    function drawFrame(now, dt) {
       ctx.clearRect(0, 0, w, h);
-      ctx.lineCap = "square";
-      ctx.lineJoin = "miter";
+      drawGlow();
+      drawRain(now, dt);
+      for (var i = 0; i < traces.length; i++) drawTrace(traces[i], now);
+      drawScanlines();
+    }
 
-      drawBrightness();                       // 2. local brightness
-
-      for (var i = 0; i < nodes.length; i++) { // 3./4. traces + pulses
-        var n = nodes[i];
-        var a = alphaOf(n, now);
-        if (a <= 0) continue;
-        var reveal = drawNodeRoute(n, a, now);
-        if (n.pulse && reveal >= 1) drawPulse(n, a, now);
+    /* Static, quiet frame for prefers-reduced-motion (no animation loop). */
+    function drawStatic() {
+      ctx.clearRect(0, 0, w, h);
+      drawGlow();
+      ctx.font = font + "px 'JetBrains Mono', ui-monospace, monospace";
+      var step = spacing;
+      for (var x = spacing * 0.5; x < w; x += step) {
+        // one short, dim, static column per pitch — atmospheric, motionless
+        var n = 3 + (Math.random() * 4 | 0);
+        var top = Math.random() * (h - n * font);
+        for (var i = 0; i < n; i++) {
+          var a = 0.14 * (1 - i / n);
+          ctx.fillStyle = "rgba(" + srgb + "," + a.toFixed(3) + ")";
+          ctx.fillText(randGlyph(), Math.round(x), Math.round(top + i * font));
+        }
       }
-
-      for (var j = 0; j < nodes.length; j++) { // 5. nodes on top of traces
-        var m = nodes[j];
-        var a2 = alphaOf(m, now);
-        if (a2 <= 0) continue;
-        ctx.globalAlpha = a2 * 0.85;
-        ctx.fillStyle = m.amber ? amberHex : signalHex;
-        ctx.shadowColor = m.amber ? amberHex : signalHex;
-        ctx.shadowBlur = 6;
-        ctx.beginPath();
-        ctx.arc(m.x, m.y, m.r, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      }
-      ctx.globalAlpha = 1;
-
-      drawMarker(now);                         // 6. marker, crisp on top
+      drawScanlines();
     }
 
     /* ---- Loop ------------------------------------------------------------ */
     function prune(now) {
       var kept = 0;
-      for (var i = 0; i < nodes.length; i++) {
-        if (now - nodes[i].born < lifeOf(nodes[i])) nodes[kept++] = nodes[i];
+      for (var i = 0; i < traces.length; i++) {
+        if (traceAlpha(traces[i], now) > 0) traces[kept++] = traces[i];
       }
-      nodes.length = kept;
-    }
-
-    function ease(cur, target, rate, dt) {
-      return cur + (target - cur) * (1 - Math.exp(-rate * dt));
+      traces.length = kept;
     }
 
     function frame(now) {
-      rafId = null;
-      var dt = lastT ? Math.min((now - lastT) / 1000, 0.05) : 0.016;
+      rafId = window.requestAnimationFrame(frame);
+
+      var interval = 1000 / fps;
+      if (now - lastDraw < interval - 0.5) return;   // frame-rate cap
+      var dt = lastT ? Math.min((now - lastT) / 1000, 0.05) : 1 / fps;
       lastT = now;
+      lastDraw = now;
 
-      // Exactly one hit test per frame, always using the newest sample.
-      if (pendingHitTest) {
-        pendingHitTest = false;
-        eligible = hasPointer && !isTouch && isEligible(targetX, targetY);
+      if (now >= nextTraceAt) {
+        spawnTrace(now);
+        nextTraceAt = now + TRACE_SPAWN_MS * (0.6 + Math.random() * 0.9);
       }
-
-      /* Reticle visibility depends ONLY on where the pointer is — never on how
-         long ago it moved, and never on whether nodes/traces still exist. */
-      var markerVisible = insideViewport && eligible && !isTouch;
-
-      // Marker + brightness sit on the RAW pointer; only their alpha eases.
-      markerA = ease(markerA, markerVisible ? 1 : 0,
-        markerVisible ? MARK_IN : MARK_OUT, dt);
-      brightA = ease(brightA, markerVisible ? 1 : 0,
-        markerVisible ? BRIGHT_IN : BRIGHT_OUT, dt);
-
-      // The electrical trail is a separate concern: nodes only spawn while the
-      // pointer is actually moving, and are free to fade out underneath a
-      // marker that stays visible.
-      var active = markerVisible && (now - lastMoveAt < 240);
-
-      // Field origin: fast, frame-rate-independent smoothing (≈0.23/frame).
-      var follow = 1 - Math.exp(-FIELD_SPEED * dt);
-      fieldX += (targetX - fieldX) * follow;
-      fieldY += (targetY - fieldY) * follow;
-
-      if (active) {
-        // Energise immediately on the first eligible frame.
-        if (!wasEligible) {
-          spawnNode(fieldX, fieldY, now);
-          if (!rm()) spawnNode(fieldX, fieldY, now);
-          lastSpawnX = targetX; lastSpawnY = targetY;
-        }
-        var dx = targetX - lastSpawnX, dy = targetY - lastSpawnY;
-        if (dx * dx + dy * dy > SPAWN_STEP * SPAWN_STEP) {
-          lastSpawnX = targetX; lastSpawnY = targetY;
-          spawnNode(fieldX, fieldY, now);
-          if (!rm() && Math.random() < 0.35) spawnNode(fieldX, fieldY, now);
-        }
-      }
-      wasEligible = active;
-
       prune(now);
-      draw(now);
-
-      // Keep rendering while the reticle is up, even with an empty trail.
-      if (markerVisible || nodes.length || markerA > 0.004 || brightA > 0.003) {
-        rafId = window.requestAnimationFrame(frame);
-      } else {
-        running = false;
-        lastT = 0;
-        ctx.clearRect(0, 0, w, h); // return to fully transparent
-      }
+      drawFrame(now, dt);
     }
 
     function start() {
-      if (running || document.hidden) return;
+      if (running || document.hidden || rm()) return;
       running = true;
-      lastT = 0;
+      lastT = 0; lastDraw = 0;
       if (rafId === null) rafId = window.requestAnimationFrame(frame);
     }
     function stop() {
@@ -430,94 +378,54 @@
       running = false;
     }
 
-    /* ---- Pointer input ---------------------------------------------------- */
-    function onPointerMove(e) {
-      if (e.pointerType === "touch") { isTouch = true; return; }
-      isTouch = false;
-      targetX = e.clientX; targetY = e.clientY;   // store latest sample only
-      if (!hasPointer) { fieldX = targetX; fieldY = targetY; hasPointer = true; }
-      insideViewport = true;
-      lastMoveAt = performance.now();
-      pendingHitTest = true;
-      start();                                    // coalesced to 1 frame max
+    /* ---- Lifecycle ------------------------------------------------------- */
+    var resizeTimer;
+    function onResize() {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(resize, 150);
     }
-    function onLeave() {
-      hasPointer = false;
-      insideViewport = false;
-      eligible = false;
-      start();            // keep running so the reticle can fade out cleanly
-    }
+    window.addEventListener("resize", onResize, { passive: true });
 
-    window.addEventListener("pointermove", onPointerMove, { passive: true });
-    window.addEventListener("pointerout", function (e) {
-      if (!e.relatedTarget) onLeave();
-    }, { passive: true });
-    document.addEventListener("mouseleave", onLeave, { passive: true });
-
-    /* ---- Touch: one short local burst per eligible tap -------------------- */
-    var tX = 0, tY = 0, tAt = 0, tOK = false;
-    window.addEventListener("pointerdown", function (e) {
-      if (e.pointerType !== "touch") return;
-      isTouch = true;
-      tX = e.clientX; tY = e.clientY; tAt = performance.now(); tOK = true;
-    }, { passive: true });
-
-    window.addEventListener("pointerup", function (e) {
-      if (e.pointerType !== "touch" || !tOK) return;
-      tOK = false;
-      var moved = Math.abs(e.clientX - tX) + Math.abs(e.clientY - tY);
-      if (moved > 12 || performance.now() - tAt > 500) return; // scroll, not tap
-      if (!isEligible(e.clientX, e.clientY)) return;
-      var now = performance.now();
-      fieldX = e.clientX; fieldY = e.clientY;
-      var count = rm() ? 3 : 3 + Math.floor(Math.random() * 5);
-      for (var i = 0; i < count; i++) spawnNode(fieldX, fieldY, now);
-      eligible = false;   // one-shot: burst fades, no marker follows touch
-      start();
-    }, { passive: true });
-
-    /* ---- Lifecycle -------------------------------------------------------- */
-    document.addEventListener("visibilitychange", function () {
+    function onVisibility() {
       if (document.hidden) stop();
-      else if (nodes.length || markerA > 0 || brightA > 0) start();
-    });
-    reduceMQ.addEventListener("change", function () {
-      nodes.length = 0;
-      markerA = brightA = 0;
-      ctx.clearRect(0, 0, w, h);
-    });
-    window.addEventListener("pagehide", function () {
-      stop();
-      window.removeEventListener("pointermove", onPointerMove);
-    });
+      else if (!rm()) start();
+    }
+    document.addEventListener("visibilitychange", onVisibility);
 
-    /* Read-only debug surface for verification. */
+    function onReduceChange() {
+      stop();
+      if (rm()) drawStatic();
+      else start();
+    }
+    reduceMQ.addEventListener("change", onReduceChange);
+
+    function teardown() {
+      stop();
+      window.removeEventListener("resize", onResize);
+      document.removeEventListener("visibilitychange", onVisibility);
+      reduceMQ.removeEventListener("change", onReduceChange);
+      window.removeEventListener("pagehide", teardown);
+    }
+    window.addEventListener("pagehide", teardown);
+
+    /* ---- Go -------------------------------------------------------------- */
+    resize();
+    nextTraceAt = performance.now() + 600;
+    if (rm()) drawStatic(); else start();
+
+    /* Read-only debug surface (verification only; no behavioural effect). */
     window.__ELECTRIC_BG__ = {
-      isEligible: isEligible,
       state: function () {
         return {
-          nodes: nodes.length, running: running, eligible: eligible,
-          markerA: +markerA.toFixed(3), brightA: +brightA.toFixed(3),
-          reducedMotion: rm(), canvas: { w: canvas.width, h: canvas.height },
-          marker: { x: targetX, y: targetY },
-          field: { x: +fieldX.toFixed(1), y: +fieldY.toFixed(1) }
+          running: running,
+          columns: columns.length,
+          activeColumns: columns.filter(function (c) { return c.active; }).length,
+          traces: traces.length,
+          reducedMotion: rm(),
+          mobile: isMobile,
+          fps: fps,
+          canvas: { w: canvas.width, h: canvas.height, dpr: dpr }
         };
-      },
-      _feed: function (x, y) {                    // test helper: raw sample
-        targetX = x; targetY = y;
-        if (!hasPointer) { fieldX = x; fieldY = y; hasPointer = true; }
-        isTouch = false;
-        insideViewport = true;
-        lastMoveAt = performance.now();
-        pendingHitTest = true;
-        start();
-      },
-      _leave: function () {                       // test helper: exit viewport
-        hasPointer = false; insideViewport = false; eligible = false; start();
-      },
-      _step: function (ms) {                      // test helper: manual frame
-        frame(performance.now() + (ms || 16));
-        return this.state();
       }
     };
   }

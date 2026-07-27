@@ -466,7 +466,19 @@
    ============================================================================ */
 .focus-list {
   display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2×2 on desktop */
+  grid-auto-rows: 1fr;  /* both rows equal height → all four cards identical */
+  align-items: stretch; /* cards fill the row; trimmed copy keeps it tidy */
   gap: var(--space-4);
+}
+/* Focus heading: let it use the full width so it stays on one/two lines
+   instead of the global 22ch cap that forced a 3-line wrap here. */
+#focus-title {
+  max-width: none;
+  font-size: clamp(1.6rem, 2.6vw, 2rem);
+}
+#focus .section__intro {
+  max-width: none;
 }
 .focus-item {
   display: grid;
@@ -479,6 +491,10 @@
   background: linear-gradient(180deg, var(--bg-card), var(--bg-raised));
   transition: border-color 0.3s var(--ease), transform 0.3s var(--ease),
     box-shadow 0.3s var(--ease);
+}
+/* Let the content column shrink so tags/links wrap instead of overflowing. */
+.focus-item > div {
+  min-width: 0;
 }
 .focus-item:hover {
   border-color: var(--signal);
@@ -505,11 +521,205 @@
 .focus-item__tools {
   margin-top: var(--space-4);
 }
+
+@media (max-width: 820px) {
+  .focus-list {
+    grid-template-columns: 1fr; /* one column on tablet & mobile */
+  }
+}
 @media (max-width: 640px) {
   .focus-item {
     grid-template-columns: 1fr;
     gap: var(--space-2);
   }
+}
+
+/* ============================================================================
+   Interactive tags — click / keyboard toggles the teal "active" highlight
+   ============================================================================ */
+.tag {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.18s var(--ease), border-color 0.18s var(--ease),
+    background 0.18s var(--ease);
+}
+.tag:hover {
+  border-color: var(--signal-dim);
+  color: var(--ink);
+}
+.tag:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   Projects — 2×2 grid with a centered 5th card; each card has a media banner
+   ============================================================================ */
+.project-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+  align-items: stretch; /* equal card heights within each row */
+}
+/* 5th card is a full-width feature — horizontally longer than the others so a
+   wide landscape screenshot reads as the hero image. */
+.project-card--wide {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+/* Feature-card media shows the wide VoltRung studio capture at its exact
+   native aspect (1902×862) so the screenshot is resized evenly, edge to edge,
+   with nothing cropped. */
+.project-card--wide .project-card__media {
+  aspect-ratio: 1902 / 862;
+  background: #0a0e17;
+}
+.project-card--wide .project-card__media img {
+  object-fit: contain;
+}
+.project-card--wide:hover .project-card__media img {
+  transform: none;
+}
+/* On desktop, lay the copy in two balanced columns beneath the wide banner. */
+@media (min-width: 761px) {
+  .project-card--wide .project-card__content {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    column-gap: var(--space-6);
+    align-items: start;
+  }
+  .project-card--wide .project-card__content .card__title {
+    grid-column: 1 / -1;
+  }
+  .project-card--wide .project-card__links {
+    align-self: end;
+    justify-self: end;
+    text-align: right;
+  }
+}
+.project-card {
+  padding: 0;              /* media banner is full-bleed; content has its own pad */
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.project-card__media {
+  position: relative;
+  margin: 0;
+  aspect-ratio: 16 / 9;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+}
+.project-card__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.5s var(--ease-out-expo);
+}
+.project-card:hover .project-card__media img {
+  transform: scale(1.04);
+}
+.project-card__media--art svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background: linear-gradient(180deg, var(--bg-card), var(--bg));
+}
+.project-card__media .card__index {
+  position: absolute;
+  top: var(--space-3);
+  left: var(--space-3);
+  margin: 0;
+  padding: 3px 9px;
+  background: color-mix(in srgb, var(--bg) 78%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+.project-card__content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: var(--space-5);
+}
+.project-card__links {
+  margin-top: auto;       /* pin the link to the card bottom for a tidy row */
+  padding-top: var(--space-4);
+}
+.project-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--signal);
+  transition: gap 0.2s var(--ease);
+}
+.project-link:hover,
+.project-link:focus-visible {
+  gap: 10px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 760px) {
+  .project-grid { grid-template-columns: 1fr; }
+  .project-card--wide { grid-column: auto; width: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .project-card:hover .project-card__media img { transform: none; }
+}
+
+/* ============================================================================
+   Clubs & Societies — logo-led cards
+   ============================================================================ */
+.club-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+  align-items: stretch;
+}
+.club-card {
+  padding: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.club-card__logo {
+  display: grid;
+  place-items: center;
+  min-height: 150px;
+  padding: var(--space-6);
+  background: linear-gradient(180deg, var(--bg-card), var(--bg));
+  border-bottom: 1px solid var(--border);
+}
+.club-card__logo--dark {
+  background: #05070c;
+}
+.club-card__logo img {
+  max-width: 72%;
+  max-height: 110px;
+  object-fit: contain;
+  display: block;
+}
+.club-card__body {
+  padding: var(--space-5);
+}
+.club-card__role {
+  margin-top: var(--space-1);
+  margin-bottom: var(--space-2);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--signal);
+}
+@media (max-width: 640px) {
+  .club-grid { grid-template-columns: 1fr; }
 }
 
 /* ============================================================================
